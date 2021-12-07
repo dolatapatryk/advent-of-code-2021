@@ -15,7 +15,7 @@ class Fish:
     def __str__(self):
         return 'Fish, timer={}'.format(self.timer)
 
-file = open('input.txt', 'r')
+file = open('input2.txt', 'r')
 
 line = file.readline().strip()
 initial_fish = []
@@ -23,7 +23,7 @@ for number in line.split(','):
     initial_fish.append(Fish(int(number)))
 
 fish_arr = initial_fish
-for i in range(80):
+for i in range(256):
     new_fish = []
     for fish in fish_arr:
         fish.decrement_timer()
