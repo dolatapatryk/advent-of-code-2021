@@ -1,28 +1,27 @@
-def get_descendants_count(timer, days_left):
-    if timer+1 > days_left:
-        return 0
-    result = 0
-    count = (days_left - timer+1) / 7 + 1
-    for i in range(count):
-        if i == 0:
-            result += get_descendants_count(8, days_left-)
+from collections import defaultdict
 
-DAYS = 18
+file = open('input.txt', 'r')
 
-file = open('input2.txt', 'r')
+initial = [int(x) for x in file.read().strip().split(',')]
 
-line = file.readline().strip()
-initial_fish = []
-for number in line.split(','):
-    initial_fish.append(int(number))
+print(initial)
 
-for fish in initial_fish:
-    descendants = get_descendants_count(fish, DAYS)
-    counter = 0
-    for i in range(descendants):
+fish = defaultdict(int)
+for x in initial:
+    if x not in fish:
+        fish[x] = 0
+    fish[x] += 1
 
+for day in range(256):
+    actual_fish = defaultdict(int)
+    for timer, count in fish.items():
+        if timer == 0:
+            actual_fish[6] += count
+            actual_fish[8] += count
+        else:
+            actual_fish[timer-1] += count
+    fish = actual_fish
 
-
-print('result =', len(fish_arr))
+print('result =', sum(fish.values()))
 
 file.close()
