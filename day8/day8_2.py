@@ -6,18 +6,24 @@
 #      e    f
 #       gggg
 
-# 0: abcefg (6)
-# 6: abdefg (6)
-# 9: abcdfg (6)
+# 0: abcefg (6)             0 and 6 are similar, difference in one letter c:d
+# 6: abdefg (6)             0 and 9 are similar, difference in one letter e:d
+# 9: abcdfg (6)             6 and 9 are less similar, difference in two letters d:c, e:d
 
-# 2: acdeg (5)
-# 3: acdfg (5)
-# 5: abdfg (5)
+# 2: acdeg (5)              2 and 3 are similar, difference in one letter e:f
+# 3: acdfg (5)              3 and 5 are similar, difference in one letter c:b
+# 5: abdfg (5)              2 and 5 are similar, difference in two letters c:b, e:f
 
-# 1: cf (2)
-# 4: bcdf (4)
-# 7: acf (3)
-# 8: abcdefg (7)
+# 1: cf (2)                 1 and 7 are similar, differ in one extra letter in 7 'a'
+# 4: bcdf (4)               1 and 4 are less similar, differ in 2 extra letters in 4 'b', 'f'
+# 7: acf (3)                
+# 8: abcdefg (7)            8 and 0, eight's got extra 'd'
+from itertools import permutations
+
+SEGMENTS_DIGIT = {
+    'abcefg': 0, 'cf': 1, 'acdeg': 2, 'acdfg': 3, 'bcdf': 4, 'abdfg': 5,
+    'abdefg': 6, 'acf': 7, 'abcdefg': 8, 'abcdfg': 9
+}
 
 def parse_input(lines):
     X = []
@@ -28,44 +34,42 @@ def parse_input(lines):
         X.append((signal, output))
     return X
 
-unique_segments = [2, 4, 3, 7]
-digit_segments = {
-    0: ['a', 'b', 'c', 'e', 'f', 'g'],
-    1: ['c', 'f'],
-    2: ['a', 'c', 'd' 'e', 'g'],
-    3: ['a', 'c', 'd', 'f', 'g'],
-    4: ['b', 'c', 'd', 'f'],
-    5: ['a', 'b', 'd', 'f', 'g'],
-    6: ['a', 'b', 'd', 'e', 'f', 'g'],
-    7: ['a', 'c', 'f'],
-    8: ['a', 'b', 'c', 'd', 'e', 'f', 'g'],
-    9: ['a', 'b', 'c', 'd', 'f', 'g']
-}
 file = open('input.txt', 'r')
 
 lines = [line.strip() for line in file.readlines()]
 X = parse_input(lines)
-# sort string = s = ''.join(sorted(s))
+
+segments = ['a', 'b', 'c', 'd', 'e', 'f', 'g']
+perms = list(permutations(segments))
 result = 0
 for x in X:
-    mappings = {'a': None, 'b': None, 'c': None, 'd': None, 'e': None, 'f': None, 'g': None}
-    candidates = {'a': set(), 'b': set(), 'c': set(), 'd': set(), 'e': set(), 'f': set(), 'g': set()}
     signal, output = x
-    for digit in signal.split(' '):
-        segments_count = len(digit)
-        letters = [l for l in digit]
-        if segments_count == 2:
-            candidates['c'].update(letters)
-            candidates['f'].update(letters)
-        if segments_count == 3:
-            candidates['a'].update(letters)
-            candidates['c'].update(letters)
-            candidates['f'].update(letters)
-    # for digit in output.split(' '):
-    #     segments = len(digit)
-    #     if segments in unique_segments:
-    #         result += 1
+    all_digits = signal + ' ' + output
+    unique_digits = set([''.join(sorted(digit)) for digit in all_digits.split(' ')])
+
+    mappings = {'a': None, 'b': None, 'c': None, 'd': None, 'e': None, 'f': None, 'g': None}
+    for i, permutation in enumerate(perms):
+        for j in range(ord('a'), ord('g')+1):
+            mappings[chr(j)] = permutation[j-ord('a')]
+        valid = True
+        for digit in unique_digits:
+            mapped = [mappings[l] for l in digit]
+            mapped.sort()
+            mapped = ''.join(mapped)
+            if mapped not in SEGMENTS_DIGIT:
+                valid = False
+                break
+        if valid:
+            break
+
+    number = ''
+    for digit in output.split(' '):
+        digit = ''.join(sorted(digit))
+        mapped = [mappings[l] for l in digit]
+        mapped.sort()
+        mapped = ''.join(mapped)
+        number += str(SEGMENTS_DIGIT[mapped])
+    result += int(number)
 
 print('result =', result)
-
 file.close()
