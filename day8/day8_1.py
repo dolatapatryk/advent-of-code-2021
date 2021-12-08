@@ -11,7 +11,8 @@
 # 9 - 6
 # unique - 1, 4, 7, 8
 
-file = open('input2.txt', 'r')
+unique_segments = [2, 4, 3, 7]
+file = open('input.txt', 'r')
 
 lines = [line.strip() for line in file.readlines()]
 
@@ -22,6 +23,14 @@ for line in lines:
     output = splitted[1]
     X.append((signal, output))
 
-print(X[0])
+result = 0
+for x in X:
+    signal, output = x
+    for digit in output.split(' '):
+        segments = len(digit)
+        if segments in unique_segments:
+            result += 1
+
+print('result =', result)
 
 file.close()
