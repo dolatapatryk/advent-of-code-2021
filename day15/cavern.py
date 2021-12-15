@@ -1,11 +1,11 @@
 import sys
-from queue import PriorityQueue
+from math import sqrt
 from heapdict import heapdict
 
 class Cavern:
 
     def __init__(self, cavern):
-        self.vertices_count = len(cavern)
+        self.max_idx = (int(sqrt(len(cavern))) - 1)
         self.graph = cavern
         self.adjacency = self.get_adjacency()
 
@@ -25,8 +25,8 @@ class Cavern:
                 if distances[adj] > (dist + self.graph[adj]):
                     distances[adj] = dist + self.graph[adj]
                     queue[adj] = dist + self.graph[adj]
-        print(distances)
-        print(distances[(99,99)])
+        # print(distances)
+        print(distances[(self.max_idx, self.max_idx)])
 
     def get_adjacency(self):
         adjacency = {}
