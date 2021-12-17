@@ -1,6 +1,6 @@
 from packet import Packet
 
-file = open('input7.txt', 'r')
+file = open('input.txt', 'r')
 
 inp = file.read().strip()
 mappings = {'0': '0000', '1': '0001', '2': '0010', '3': '0011', '4': '0100', '5': '0101', '6': '0110', 
@@ -10,6 +10,6 @@ mappings = {'0': '0000', '1': '0001', '2': '0010', '3': '0011', '4': '0100', '5'
 bits = ''.join([mappings[c] for c in inp])
 
 packet = Packet.from_bits(bits)
-print(packet.get_result())
+print(packet.calculate_version())
 
 file.close()

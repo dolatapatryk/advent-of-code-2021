@@ -1,4 +1,5 @@
 from abc import abstractmethod
+import math
 
 PACKET_VER_START_IDX = 0
 PACKET_VER_END_IDX = 3
@@ -21,9 +22,13 @@ class Packet:
 
     def cut_header(self):
         return self.bits[HEADER_SIZE:]
-    
+
     @abstractmethod
     def get_result(self):
+        pass
+    
+    @abstractmethod
+    def calculate_version(self):
         pass
 
 class LiteralPacket(Packet):
@@ -51,6 +56,9 @@ class LiteralPacket(Packet):
         return literal_value
 
     def get_result(self):
+        return self.literal_value
+
+    def calculate_version(self):
         return self.packet_ver
     
     def __len__(self):
@@ -92,9 +100,25 @@ class OperatorPacket(Packet):
         return subpackets
 
     def get_result(self):
+        if self.packet_type == 0:
+            return sum([sub.get_result() for sub in self.subpackets])
+        elif self.packet_type == 1:
+            return math.prod([sub.get_result() for sub in self.subpackets])
+        elif self.packet_type == 2:
+            return min([sub.get_result() for sub in self.subpackets])
+        elif self.packet_type == 3:
+            return max([sub.get_result() for sub in self.subpackets])
+        elif self.packet_type == 5:
+            return 1 if self.subpackets[0].get_result() > self.subpackets[1].get_result() else 0
+        elif self.packet_type == 6:
+            return 1 if self.subpackets[0].get_result() < self.subpackets[1].get_result() else 0
+        elif self.packet_type == 7:
+            return 1 if self.subpackets[0].get_result() == self.subpackets[1].get_result() else 0
+
+    def calculate_version(self):
         result = self.packet_ver
         for sub in self.subpackets:
-            result += sub.get_result()
+            result += sub.calculate_version()
         return result
 
     def __len__(self):
