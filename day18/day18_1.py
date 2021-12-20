@@ -1,15 +1,5 @@
-import sys
-import heapq
-import itertools
 import re
 import ast
-from collections import defaultdict, Counter, deque
-
-infile = 'input.txt'
-data = open(infile).read().strip()
-
-
-ans = None
 
 def add(n1, n2):
   ret = [n1, n2]
@@ -102,18 +92,15 @@ def magnitude(n):
     return 3*magnitude(n[0]) + 2*magnitude(n[1])
   else:
     return n
-  
 
-X = []
-for line in data.split('\n'):
-  assert line == line.strip()
-  X.append(ast.literal_eval(line))
+file = open('input.txt', 'r')
+data = file.read().strip()
 
 ans = None
-for x in X:
-  for y in X:
-    if x != y:
-      score = magnitude(add(x, y))
-      if ans is None or score > ans:
-        ans = score
-print(ans)
+for line in data.split('\n'):
+  assert line == line.strip()
+  n = ast.literal_eval(line)
+  ans = n if ans is None else add(ans, n)
+print(magnitude(ans))
+
+file.close()
