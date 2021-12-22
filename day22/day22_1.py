@@ -17,7 +17,7 @@ def check_cuboid_is_in_range(x_range, y_range, z_range):
     return True
 
 
-file = open('input.txt', 'r')
+file = open('input2.txt', 'r')
 
 lines = [line.strip() for line in file.readlines()]
 steps = parse_input(lines)
@@ -35,6 +35,7 @@ for mode, x_range, y_range, z_range in steps:
                     if (x,y,z) in activate_cubes:
                         activate_cubes.remove((x,y,z))
 
-print(len(activate_cubes))     
+print(len(activate_cubes)) 
+print(activate_cubes)    
 
 file.close()
