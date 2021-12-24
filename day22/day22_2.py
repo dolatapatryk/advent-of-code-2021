@@ -1,5 +1,10 @@
+import bisect
+
 def parse_input(lines):
     steps = []
+    X = set()
+    Y = set()
+    Z = set()
     for line in lines:
         splitted = line.split(' ')
         mode = splitted[0]
@@ -7,61 +12,40 @@ def parse_input(lines):
         min_x,max_x = [int(val) for val in x[2:].split('..')]
         min_y,max_y = [int(val) for val in y[2:].split('..')]
         min_z,max_z = [int(val) for val in z[2:].split('..')]
-        steps.append((mode, (min_x,max_x), (min_y, max_y), (min_z, max_z)))
-    return steps
+        X.add(min_x)
+        X.add(max_x+1)
+        Y.add(min_y)
+        Y.add(max_y+1)
+        Z.add(min_z)
+        Z.add(max_z+1)
+        steps.append((mode, (min_x,max_x+1), (min_y, max_y+1), (min_z, max_z+1)))
+    X = sorted(X)
+    Y = sorted(Y)
+    Z = sorted(Z)
+    return steps,X,Y,Z
 
-file = open('input2.txt', 'r')
+file = open('input.txt', 'r')
 
 lines = [line.strip() for line in file.readlines()]
-steps = parse_input(lines)
+steps, X, Y, Z = parse_input(lines)
 
-x_ranges = []
-y_ranges = []
-z_ranges = []
+grid = {}
 for mode, x_range, y_range, z_range in steps:
-    if len(x_ranges) == 0:
-        x_ranges.append(x_range)
-        continue
-    range_idx = None
-    x1,x2 = x_range
-    for i,r in enumerate(x_ranges):
-        if x1 <= r[1] and x2 >= r[0]:
-            range_idx = i
-            break
-    if range_idx is not None:
-        xr1,xr2 = x_ranges[range_idx]
-        if mode == 'on':
-            new_x1 = min(x1, xr1)
-            new_x2 = max(x2, xr2)
-        else:
-            if x2 in range(xr1, xr2+1) and x1 in range(xr1, xr2+1):
-                new_x1 = x1
-                new_x2 = x2
-                x_ranges.append((xr1, x1-1))
-                x_ranges.append((x2+1, xr2))
-            elif x2 in range(xr1, xr2+1):
-                new_x1 = x2+1
-                new_x2 = xr2
-            elif x1 in range(xr1, xr2+1):
-                new_x1 = xr1
-                new_x2 = x1-1
-        x_ranges[range_idx] = (new_x1, new_x2)
-    else:
-        if mode == 'on':
-            x_ranges.append(x_range)
-print(x_ranges)
+    x1 = bisect.bisect_left(X, x_range[0])
+    x2 = bisect.bisect_left(X, x_range[1])  
+    y1 = bisect.bisect_left(Y, y_range[0])
+    y2 = bisect.bisect_left(Y, y_range[1])  
+    z1 = bisect.bisect_left(Z, z_range[0])
+    z2 = bisect.bisect_left(Z, z_range[1])  
+    for x in range(x1,x2):
+        for y in range(y1,y2):
+            for z in range(z1,z2):
+                grid[(x,y,z)] = 1 if mode == 'on' else 0
 
-activate_cubes = set()
-# for mode, x_range, y_range, z_range in steps:
-#     for x in range(x_range[0], x_range[1]+1):
-#         for y in range(y_range[0], y_range[1]+1):
-#             for z in range(z_range[0], z_range[1]+1):
-#                 if mode == 'on':
-#                     activate_cubes.add((x,y,z))
-#                 else:
-#                     if (x,y,z) in activate_cubes:
-#                         activate_cubes.remove((x,y,z))
+result = 0
+for (x,y,z),val in grid.items():
+    result += val * (X[x+1] - X[x]) * (Y[y+1] - Y[y]) * (Z[z+1] - Z[z])
 
-print(len(activate_cubes))     
+print(result)
 
 file.close()
